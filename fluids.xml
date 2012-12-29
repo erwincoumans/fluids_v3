@@ -1,0 +1,31 @@
+<Fluid>
+	<Attr name="SimScale">0.005</Attr>
+	<Attr name="Viscosity">0.35</Attr>
+	<Attr name="RestDensity">600.0</Attr>
+	<Attr name="Spacing">0.01</Attr>
+	<Attr name="Mass">0.00020543</Attr>
+	<Attr name="Radius">0.02</Attr>
+	<Attr name="SearchDist">0.0059</Attr>
+	<Attr name="InternalStiffness">1.5</Attr>
+	<Attr name="BoundaryStiffness">50000.0</Attr>
+	<Attr name="BoundaryDamp">100.0</Attr>
+	<Attr name="AccelLimit">150.0</Attr>
+	<Attr name="VelLimit">3.0</Attr>
+	<Attr name="PointGravStrength">0.0</Attr>
+	<Attr name="PointGravPos">0,0,0</Attr>
+	<Attr name="PlaneGravDir">0,-9.8,0</Attr>
+	<Attr name="GroundSlope">0.0</Attr>
+	<Attr name="WaveForceMin">0.0</Attr>
+	<Attr name="WaveForceMax">0.0</Attr>
+	<Attr name="DrawMode">1</Attr>
+	<Attr name="DrawGrid">0</Attr>
+	<Attr name="DrawText">0</Attr>
+</Fluid>
+<Scene id="1">
+	<Attr name="VolMin">-100, 0, -100</Attr>
+	<Attr name="VolMax"> 100, 100, 100</Attr>
+	<Attr name="InitMin">-50, 20, -90</Attr>
+	<Attr name="InitMax"> 90, 90, 90</Attr>
+	<Attr name="WaveForceMin">50.0</Attr>
+	<Attr name="GroundSlope">0.04</Attr>
+</Scene>

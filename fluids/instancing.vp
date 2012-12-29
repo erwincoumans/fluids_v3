@@ -1,0 +1,33 @@
+struct vertex
+{
+	float4 position : POSITION;
+	float4 color    : COLOR0;
+	float3 norm	    : NORMAL;
+	float2 texCoord : TEXCOORD0;
+};
+struct fragment
+{
+	float4 position : POSITION;
+	float4 color    : COLOR0;
+	float2 texCoord : TEXCOORD0;	
+	float3 Vdir		: TEXCOORD3;
+};
+
+uniform float3		cameraPos;
+uniform float4x4	modelViewProj;
+
+uniform float3		transformList[768];
+uniform float		primCnt;
+
+
+/******** Generic pass-through vertex program *********/
+fragment main ( vertex IN, int primID : INSTANCEID )
+{
+	fragment OUT;
+	OUT.position = mul ( modelViewProj, IN.position + float4( transformList[primID], 1 ) );
+	OUT.color = IN.color;
+	OUT.texCoord = IN.texCoord;	
+	return OUT;
+}
+
+
