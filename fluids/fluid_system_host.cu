@@ -22,15 +22,15 @@
 
 
 #include <conio.h>
-#include <cutil.h>				// cutil32.lib
-#include <cutil_math.h>				// cutil32.lib
+#include "cutil.h"				// cutil32.lib
+#include "cutil_math.h"				// cutil32.lib
 #include <string.h>
 #include <assert.h>
 
 #if defined(__APPLE__) || defined(MACOSX)
 	#include <GLUT/glut.h>
 #else
-	#include <GL/glut.h>
+	#include "GL/glut.h"
 #endif
 #include <cuda_gl_interop.h>
 #include <stdio.h>

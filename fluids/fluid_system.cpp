@@ -2171,7 +2171,7 @@ void FluidSystem::SetupDefaultParams ()
 	// Default sim config
 	m_Toggle [ PRUN ] = true;				// Run integrator
 	m_Param [PGRIDSIZE] = m_Param[PSMOOTHRADIUS] * 2;
-	m_Param [PDRAWMODE] = 1;				// Sprite drawing
+	m_Param [PDRAWMODE] = 2;
 	m_Param [PDRAWGRID] = 0;				// No grid 
 	m_Param [PDRAWTEXT] = 0;				// No text
 

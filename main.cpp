@@ -650,7 +650,6 @@ int main ( int argc, char **argv )
 	init();	
 	
 	psys.SetupRender ();
-
 	glutMainLoop();
 
 	psys.Exit ();

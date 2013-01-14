@@ -60,13 +60,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">DebugGPU\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)\output\$(Configuration)</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">DebugGPU\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ReleaseGPU\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)\output\$(Configuration)</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ReleaseGPU\</IntDir>
@@ -89,7 +89,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>fluids;common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>fluids;common;$(CG_INC_PATH);$(CUDA_INC_PATH);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;BUILD_CUDA;FREEGLUT_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -100,12 +100,13 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>tinyXML_2010d.lib;glee_2010d.lib;freeglut_static.lib;cudart.lib;cutil32.lib;cg.lib;cgGL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cudart.lib;cg.lib;cgGL.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcpmtd.lib;libcmtd.lib; libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>$(CUDA_PATH)/lib/win32;$(CG_LIB_PATH)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -131,7 +132,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>fluids;common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>fluids;common;$(CG_INC_PATH);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;BUILD_CUDA;FREEGLUT_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -144,14 +145,17 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>tinyXML_2010.lib;glee_2010.lib;freeglut_static.lib;cudart.lib;cutil32.lib;cg.lib;cgGL.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>libcmtd.lib; libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <AdditionalDependencies>cudart.lib;cg.lib;cgGL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>libcpmt.lib;libcpmtd.lib;libcmtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>$(CUDA_PATH)/lib/win32;$(CG_LIB_PATH)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -187,7 +191,7 @@
     <None Include="fluids\radixsort.cuh" />
     <None Include="fluids\radixsort_kernel.cu" />
     <CustomBuild Include="fluids\fluid_system_host.cu">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(CUDA_BIN_PATH)\nvcc.exe" -lcuda -lcublas -lcudart -m 32 -arch=sm_20 -ccbin "$(VCInstallDir)\bin" -c -D_DEBUG -DWIN32 -D_CONSOLE -D_MBCS -Xcompiler /EHsc,/W3,/nologo,/Od,/Zi,/RTC1,/MTd -I "$(CUDA_INC_PATH)"%3b -I./  -I../../common/inc -o $(Configuration)\fluid_system_host.obj fluids\fluid_system_host.cu
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(CUDA_BIN_PATH)\nvcc.exe"  -lcuda -lcublas -lcudart -m 32 -arch=sm_20 -ccbin "$(VCInstallDir)\bin" -c -D_DEBUG -DWIN32 -D_CONSOLE -D_MBCS -Xcompiler /EHsc,/W3,/nologo,/Od,/Zi,/RTC1,/MTd -I "$(CUDA_INC_PATH)"%3b -I./   -Icommon -I../../common/inc -o $(Configuration)\fluid_system_host.obj fluids\fluid_system_host.cu
  </Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(CUDA_BIN_PATH)\nvcc.exe"  -g -G -arch=sm_13 -ccbin "$(VCInstallDir)\bin" -c -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler /EHsc,/W3,/nologo,/Od,/Zi,/RTC1,/MTd -I "$(CUDA_INC_PATH)"%3b -I./ -o $(Configuration)\fluid_system_host.obj fluids\fluid_system_host.cu
 </Command>
@@ -209,7 +213,7 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(CUDA_BIN_PATH)\nvcc.exe"  -G0 -arch=sm_13 -ccbin "$(VCInstallDir)\bin" -c -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler /EHsc,/W3,/nologo,/Od,/Zi,/RTC1,/MTd -I "$(CUDA_INC_PATH)"%3b -I./ -o $(Configuration)\fluid_system_kern.obj fluids\fluid_system_kern.cu</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Configuration)\fluid_system_kern.obj;%(Outputs)</Outputs>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(CUDA_BIN_PATH)\nvcc.exe" -lcuda -lcublas -lcudart -m 32 -arch=sm_20 -ccbin "$(VCInstallDir)\bin" -c -D_DEBUG -DWIN32 -D_CONSOLE -D_MBCS -Xcompiler /EHsc,/W3,/nologo,/Od,/Zi,/RTC1,/MTd -I "$(CUDA_INC_PATH)"%3b -I./  -I../../common/inc -o $(Configuration)\fluid_system_kern.obj fluids\fluid_system_kern.cu</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(CUDA_BIN_PATH)\nvcc.exe" -lcuda -lcublas -lcudart -m 32 -arch=sm_20 -ccbin "$(VCInstallDir)\bin" -c -D_DEBUG -DWIN32 -D_CONSOLE -D_MBCS -Xcompiler /EHsc,/W3,/nologo,/Od,/Zi,/RTC1,/MTd -I "$(CUDA_INC_PATH)"%3b -I./  -Icommon -o $(Configuration)\fluid_system_kern.obj fluids\fluid_system_kern.cu</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\fluid_system_kern.obj;%(Outputs)</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">radixsort.cu;%(AdditionalInputs)</AdditionalInputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(CUDA_BIN_PATH)\nvcc.exe"  -m 32 -arch=sm_20 -ccbin "$(VCInstallDir)\bin" -c -DWIN32 -D_CONSOLE -D_MBCS -O3 -Xcompiler /EHsc,/W3,/nologo,/Wp64,/Zi -I "$(CUDA_INC_PATH)"%3b -I./ -o $(Configuration)\fluid_system_kern.obj fluids\fluid_system_kern.cu</Command>
@@ -244,9 +248,16 @@
     <ClCompile Include="common\mdebug.cpp" />
     <ClCompile Include="common\mtime.cpp" />
     <ClCompile Include="common\pivotx.cpp" />
+    <ClCompile Include="common\tinystr.cpp" />
+    <ClCompile Include="common\tinyxml.cpp" />
+    <ClCompile Include="common\tinyxmlerror.cpp" />
+    <ClCompile Include="common\tinyxmlparser.cpp" />
     <ClCompile Include="common\utilities.cpp" />
     <ClCompile Include="common\vector.cpp" />
     <ClCompile Include="common\xml_settings.cpp" />
+    <ClCompile Include="fluids\bank_checker.cpp" />
+    <ClCompile Include="fluids\cmd_arg_reader.cpp" />
+    <ClCompile Include="fluids\cutil.cpp" />
     <ClCompile Include="fluids\fluid_system.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
