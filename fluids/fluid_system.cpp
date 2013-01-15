@@ -82,7 +82,7 @@ FluidSystem::FluidSystem ()
 	m_NeighborTable = 0x0;
 	m_NeighborDist = 0x0;
 	
-	m_Param [ PMODE ]		= RUN_CUDA_FULL;
+	m_Param [ PMODE ]		= RUN_CUDA_FULL;//RUN_CPU_GRID;//RUN_CPU_SLOW;
 	m_Param [ PEXAMPLE ]	= 1;
 	m_Param [ PGRID_DENSITY ] = 2.0;
 	m_Param [ PNUM ]		= 8192; //65536 * 128;
@@ -423,17 +423,149 @@ void FluidSystem::RunValidate ()
 	free ( cpu_gridoff );	
 }
 
+// O(n^2)	
+void FluidSystem::ComputePressureSlow ()
+{
+	int i, j, cnt = 0;
+	int nbr;
+	float dx, dy, dz, sum, dsq, c;
+	float d = m_Param[PSIMSCALE];
+	float d2 = d*d;
+	float radius = m_Param[PSMOOTHRADIUS] / m_Param[PSIMSCALE];
+	
+	Vector3DF*	ipos	= mPos;
+	float*		ipress	= mPressure;
+	float*		idensity = mDensity;
+	uint*		inbr	= mNbrNdx;
+	uint*		inbrcnt = mNbrCnt;	
+
+	Vector3DF	dst;
+	int			nadj = (m_GridRes.z + 1)*m_GridRes.x + 1;
+	int*		jnext;
+	
+	int nbrcnt = 0;
+	int srch = 0;
+
+	for ( i=0; i < NumPoints(); i++ ) 
+	{
+		mGridCell[i]=0;
+
+		sum = 0.0;
+
+		for ( j=0; j < NumPoints(); j++ ) 
+		{
+			if ( i==j ) 
+				continue;
+
+			dst = *(mPos + j);
+			dst -= *ipos;
+			dsq = d2*(dst.x*dst.x + dst.y*dst.y + dst.z*dst.z);
+			if ( dsq <= m_R2 ) {
+				c =  m_R2 - dsq;
+				sum += c * c * c;
+				nbrcnt++;
+			}
+			srch++;
+		}
+		*idensity = sum * m_Param[PMASS] * m_Poly6Kern ;	
+		*ipress = ( *idensity - m_Param[PRESTDENSITY] ) * m_Param[PINTSTIFF];		
+		*idensity = 1.0f / *idensity;
+
+		ipos++;
+		idensity++;
+		ipress++;
+	}
+	// Stats:
+	m_Param [ PSTAT_NBR ] = float(nbrcnt);
+	m_Param [ PSTAT_SRCH ] = float(srch);
+	if ( m_Param[PSTAT_NBR] > m_Param [ PSTAT_NBRMAX ] ) m_Param [ PSTAT_NBRMAX ] = m_Param[PSTAT_NBR];
+	if ( m_Param[PSTAT_SRCH] > m_Param [ PSTAT_SRCHMAX ] ) m_Param [ PSTAT_SRCHMAX ] = m_Param[PSTAT_SRCH];
+}
+
+// O(n^2)
+void FluidSystem::ComputeForceSlow ()
+{
+	Vector3DF force;
+	register float pterm, vterm, dterm;
+	int i, j, nbr;
+	float c, d;
+	float dx, dy, dz;
+	float mR, mR2, visc;	
+
+	d = m_Param[PSIMSCALE];
+	mR = m_Param[PSMOOTHRADIUS];
+	visc = m_Param[PVISC];
+	
+	Vector3DF*	ipos = mPos;
+	Vector3DF*	iveleval = mVelEval;
+	Vector3DF*	iforce = mForce;
+	float*		ipress = mPressure;
+	float*		idensity = mDensity;
+	
+	int			jndx;
+	Vector3DF	jpos;
+	float		jdist;
+	float		jpress;
+	float		jdensity;
+	Vector3DF	jveleval;
+	float		dsq;
+	float		d2 = d*d;
+	int			nadj = (m_GridRes.z + 1)*m_GridRes.x + 1;
+
+	for ( i=0; i < NumPoints(); i++ ) 
+	{
+		iforce->Set ( 0, 0, 0 );
+
+		for ( j=0; j < NumPoints(); j++ ) 
+		{
+
+			if ( i==j ) 
+				continue; 
+
+			jpos = *(mPos + j);
+			dx = ( ipos->x - jpos.x);		// dist in cm
+			dy = ( ipos->y - jpos.y);
+			dz = ( ipos->z - jpos.z);
+			dsq = d2*(dx*dx + dy*dy + dz*dz);
+			if ( dsq <= m_R2 ) 
+			{
+
+				jdist = sqrt(dsq);
+
+				jpress = *(mPressure + j);
+				jdensity = *(mDensity + j);
+				jveleval = *(mVelEval + j);						
+				dx = ( ipos->x - jpos.x);		// dist in cm
+				dy = ( ipos->y - jpos.y);
+				dz = ( ipos->z - jpos.z);
+				c = (mR-jdist);
+				pterm = d * -0.5f * c * m_SpikyKern * ( *ipress + jpress ) / jdist;
+				dterm = c * (*idensity) * jdensity;
+				vterm = m_LapKern * visc;
+				iforce->x += ( pterm * dx + vterm * ( jveleval.x - iveleval->x) ) * dterm;
+				iforce->y += ( pterm * dy + vterm * ( jveleval.y - iveleval->y) ) * dterm;
+				iforce->z += ( pterm * dz + vterm * ( jveleval.z - iveleval->z) ) * dterm;
+			}
+		}
+		ipos++;
+		iveleval++;
+		iforce++;
+		ipress++;
+		idensity++;
+	}
+}
+
 void FluidSystem::RunSimulateCPUSlow ()
 {
 	mint::Time start;
 	start.SetSystemTime ( ACC_NSEC );
-	InsertParticles ();
+	InsertParticles();//why?
 	record ( PTIME_INSERT, "Insert CPU", start );			
 	start.SetSystemTime ( ACC_NSEC );
-	//ComputePressureSlow ();
+	ComputePressureSlow ();
 	record ( PTIME_PRESS, "Press CPU (Slow)", start );
 	start.SetSystemTime ( ACC_NSEC );
-	//ComputeForceSlow ();
+	ComputeForceSlow ();
 	record ( PTIME_FORCE, "Force CPU (Slow)", start );
 	start.SetSystemTime ( ACC_NSEC );
 	Advance ();

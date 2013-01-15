@@ -207,7 +207,7 @@ void draw2D ()
 
 	if ( bHelp ) {	
 
-		sprintf ( disp,	"Mode:                %s", psys.getModeStr().c_str() );					drawText ( 20, 40,  disp );
+		sprintf ( disp,	"Mode (f/g):                %s", psys.getModeStr().c_str() );					drawText ( 20, 40,  disp );
 		
 		sprintf ( disp,	"Scene:               %s (id: %d)", psys.getSceneName().c_str(), (int) psys.GetParam(PEXAMPLE) );				drawText ( 20, 60,  disp );
 

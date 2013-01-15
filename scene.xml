@@ -19,11 +19,11 @@
 </Fluid>
 <Scene id="1">
 	<Name>		Small Wave Pool	</Name>
-	<Num>			65536			</Num>
-	<VolMin>		-100, 0, -100	</VolMin>
-	<VolMax> 		100, 100, 100	</VolMax>
-	<InitMin>		-70, 20, -90	</InitMin>
-	<InitMax> 		90, 90, 90		</InitMax>
+	<Num>			1024			</Num>
+	<VolMin>		-100, 0, -10	</VolMin>
+	<VolMax> 		100, 30, 10	</VolMax>
+	<InitMin>		-70, 10, -10	</InitMin>
+	<InitMax> 		90, 20, 10		</InitMax>
 	<WaveForceFreq>	8.0		</WaveForceFreq>
 	<WaveForceMin>	20.0		</WaveForceMin>
 	<GroundSlope>	0.04		</GroundSlope>

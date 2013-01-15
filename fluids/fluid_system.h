@@ -250,8 +250,8 @@
 		void PackParticles ();
 		void UnpackParticles ();
 
-		//void SPH_ComputePressureSlow ();			// O(n^2)	
-		//void SPH_ComputeForceSlow ();				// O(n^2)
+		void ComputePressureSlow ();			// O(n^2)	
+		void ComputeForceSlow ();				// O(n^2)
 		//void SPH_ComputeForceGrid ();				// O(kn) - spatial grid
 
 		// Recording
