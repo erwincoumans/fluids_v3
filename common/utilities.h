@@ -3,16 +3,18 @@
 #ifndef DEF_UTILS
 	#define DEF_UTILS
 
-
+	#include <algorithm>
 	#include <string>
+	#include <cstdio>
+	#include <cstring>
 
 	class Vector3DI;
 	class Vector3DF;
 	class ObjectX;
 	
 	#define LUNA_CORE
-	#define	fmin(a,b)		( min (a,b) )
-	#define fmax(a,b)		( max (a,b) )	
+	#define	fmin(a,b)		( std::min (a,b) )
+	#define fmax(a,b)		( std::max (a,b) )
 	typedef	unsigned short int		objType;
 	typedef unsigned char			uchar;
 

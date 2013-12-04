@@ -26,6 +26,8 @@
 #include "mdebug.h"
 
 #include <assert.h>
+#include <cstring>
+#include <string>
 
 GeomX::GeomX ()
 {

@@ -3,6 +3,8 @@
 #include "gl_helper.h"
 
 #include <math.h>
+#include <cstring>
+#include <cstdlib>
 
 
 

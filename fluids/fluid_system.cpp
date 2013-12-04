@@ -23,7 +23,6 @@
 #include "gl_helper.h"
 #include <assert.h>
 #include <stdio.h>
-#include <conio.h>
 
 #include "camera3d.h"
 
@@ -2492,7 +2491,7 @@ void FluidSystem::TestPrefixSum ( int num )
 	}
 	printf ( "Validate: %d OK. (Bad: %d)\n", ok, num-ok );
 	printf ( "Press any key to continue..\n");
-	_getch();
+	getchar();
 }
 
 

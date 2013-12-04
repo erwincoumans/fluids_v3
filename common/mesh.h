@@ -3,7 +3,7 @@
 	#define DEF_MESH
 
 	#include <vector>
-	#include <gl/glut.h>
+	#include <GL/glut.h>
 
 	#include "geomx.h"
 	#include "mesh_info.h"	
