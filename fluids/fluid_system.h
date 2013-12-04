@@ -272,7 +272,7 @@
 		float IncParam ( int p, float v, float mn, float mx )	{ 
 			m_Param[p] += v; 
 			if ( m_Param[p] < mn ) m_Param[p] = mn; 
-			if ( m_Param[p] > mx ) m_Param[p] = mn; 
+			if ( m_Param[p] > mx ) m_Param[p] = mx;
 			return m_Param[p];
 		}
 		Vector3DF GetVec ( int p )			{ return m_Vec[p]; }
