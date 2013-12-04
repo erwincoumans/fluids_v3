@@ -191,21 +191,27 @@
 		// Simulation
 		void Run (int w, int h);
 		void RunSearchCPU ();
+#ifdef BUILD_CUDA
 		void RunValidate ();
+#endif
 		void RunSimulateCPUSlow ();
 		void RunSimulateCPUGrid ();
+#ifdef BUILD_CUDA
 		void RunSimulateCUDARadix ();
 		void RunSimulateCUDAIndex ();
 		void RunSimulateCUDAFull ();
 		void RunSimulateCUDACluster ();
+#endif
 		void RunPlayback ();
 		
 		void Advance ();
 		void EmitParticles ();
 		void Exit ();
+#ifdef BUILD_CUDA
 		void TransferToCUDA ();
 		void TransferFromCUDA ();
 		void ValidateSortCUDA ();
+#endif
 		double GetDT()		{ return m_DT; }
 
 		// Debugging
