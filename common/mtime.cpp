@@ -54,7 +54,7 @@ void Time::SetSystemTime ( int accuracy )
 			struct timeval tv;
 			gettimeofday(&tv, NULL);			
 			sjtime t = ((sjtime) tv.tv_sec * 1000000LL) + (sjtime) tv.tv_usec;	
-			m_CurrTime = m_BaseTime + ( t - m_BaseTicks) * 1000LL;			// 1000LL - converts microseconds to milliseconds
+			m_CurrTime = m_BaseTime + ( t - m_BaseTicks) / 1000LL;			// 1000LL - converts microseconds to milliseconds
 		#endif
 		} break;
 	case ACC_NSEC: {		// 1 nanosecond accuracy
@@ -63,7 +63,10 @@ void Time::SetSystemTime ( int accuracy )
 			QueryPerformanceCounter ( &currCount );
 			m_CurrTime = m_BaseTime + sjtime( (double(currCount.QuadPart-m_BaseCount.QuadPart) / m_BaseFreq.QuadPart) * SEC_SCALAR);
 		#else
-			debug.Printf ( "mtime", "ERROR: ACC_NSEC NOT IMPLEMENTED for Time::SetSystemTime\n" );
+			struct timeval tv;
+			gettimeofday(&tv, NULL);
+			sjtime t = ((sjtime) tv.tv_sec * 1000000LL) + (sjtime) tv.tv_usec;	
+			m_CurrTime = m_BaseTime + ( t - m_BaseTicks) * 1000LL;			// 1000LL - fake microseconds to macroseconds
 		#endif
 		} break;	
 	}
