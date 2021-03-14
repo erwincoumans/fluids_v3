@@ -191,21 +191,27 @@
 		// Simulation
 		void Run (int w, int h);
 		void RunSearchCPU ();
+#ifdef BUILD_CUDA
 		void RunValidate ();
+#endif
 		void RunSimulateCPUSlow ();
 		void RunSimulateCPUGrid ();
+#ifdef BUILD_CUDA
 		void RunSimulateCUDARadix ();
 		void RunSimulateCUDAIndex ();
 		void RunSimulateCUDAFull ();
 		void RunSimulateCUDACluster ();
+#endif
 		void RunPlayback ();
 		
 		void Advance ();
 		void EmitParticles ();
 		void Exit ();
+#ifdef BUILD_CUDA
 		void TransferToCUDA ();
 		void TransferFromCUDA ();
 		void ValidateSortCUDA ();
+#endif
 		double GetDT()		{ return m_DT; }
 
 		// Debugging
@@ -272,7 +278,7 @@
 		float IncParam ( int p, float v, float mn, float mx )	{ 
 			m_Param[p] += v; 
 			if ( m_Param[p] < mn ) m_Param[p] = mn; 
-			if ( m_Param[p] > mx ) m_Param[p] = mn; 
+			if ( m_Param[p] > mx ) m_Param[p] = mx;
 			return m_Param[p];
 		}
 		Vector3DF GetVec ( int p )			{ return m_Vec[p]; }

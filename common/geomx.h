@@ -24,6 +24,7 @@
 	#define DEF_GEOM
 
 	#include <vector>
+	#include <string>
 
 	#define	HEAP_MAX			2147483640	// largest heap size (range of hpos)
 

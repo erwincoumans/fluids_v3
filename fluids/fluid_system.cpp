@@ -23,7 +23,6 @@
 #include "gl_helper.h"
 #include <assert.h>
 #include <stdio.h>
-#include <conio.h>
 
 #include "camera3d.h"
 
@@ -43,6 +42,7 @@
 
 #define EPSILON			0.00001f			//for collision detection
 
+#ifdef BUILD_CUDA
 void FluidSystem::TransferToCUDA ()
 { 
 	CopyToCUDA ( (float*) mPos, (float*) mVel, (float*) mVelEval, (float*) mForce, mPressure, mDensity, mClusterCell, mGridNext, (char*) mClr ); 
@@ -51,6 +51,7 @@ void FluidSystem::TransferFromCUDA ()
 {
 	CopyFromCUDA ( (float*) mPos, (float*) mVel, (float*) mVelEval, (float*) mForce, mPressure, mDensity, mClusterCell, mGridNext, (char*) mClr );
 }
+#endif
 
 //------------------------------ Initialization
 FluidSystem::FluidSystem ()
@@ -81,8 +82,13 @@ FluidSystem::FluidSystem ()
 	
 	m_NeighborTable = 0x0;
 	m_NeighborDist = 0x0;
-	
+
+#ifdef BUILD_CUDA
 	m_Param [ PMODE ]		= RUN_CUDA_FULL;//RUN_CPU_GRID;//RUN_CPU_SLOW;
+#else
+	m_Param [ PMODE ]		= RUN_CPU_SLOW;
+#endif
+
 	m_Param [ PEXAMPLE ]	= 1;
 	m_Param [ PGRID_DENSITY ] = 2.0;
 	m_Param [ PNUM ]		= 8192; //65536 * 128;
@@ -160,10 +166,11 @@ void FluidSystem::Exit ()
 	free ( mNbrNdx );
 	free ( mNbrCnt );
 
+#ifdef BUILD_CUDA
 	FluidClearCUDA();
 
 	cudaExit (0,0);
-
+#endif
 
 }
 
@@ -340,6 +347,7 @@ void FluidSystem::RunSearchCPU ()
 
 }
 
+#ifdef BUILD_CUDA
 void FluidSystem::RunValidate ()
 {
 	int valid = 0, bad = 0;
@@ -422,6 +430,7 @@ void FluidSystem::RunValidate ()
 	free ( cpu_grid );
 	free ( cpu_gridoff );	
 }
+#endif
 
 // O(n^2)	
 void FluidSystem::ComputePressureSlow ()
@@ -589,6 +598,7 @@ void FluidSystem::RunSimulateCPUGrid ()
 	record ( PTIME_ADVANCE, "Advance CPU", start );
 }
 
+#ifdef BUILD_CUDA
 void FluidSystem::RunSimulateCUDARadix ()
 {
 	// Not completed yet
@@ -662,6 +672,7 @@ void FluidSystem::RunSimulateCUDACluster ()
 	record ( PTIME_ADVANCE, "Advance CUDA", start );
 	TransferFromCUDA ();			
 }
+#endif
 
 
 void FluidSystem::EmitParticles ()
@@ -686,13 +697,17 @@ void FluidSystem::Run (int width, int height)
 	// Run
 	switch ( (int) m_Param[PMODE] ) {
 	case RUN_SEARCH:		RunSearchCPU();			break;
+#ifdef BUILD_CUDA
 	case RUN_VALIDATE:		RunValidate();			break;
+#endif
 	case RUN_CPU_SLOW:		RunSimulateCPUSlow();	break;
 	case RUN_CPU_GRID:		RunSimulateCPUGrid();	break;
+#ifdef BUILD_CUDA
 	case RUN_CUDA_RADIX:	RunSimulateCUDARadix();	break;
 	case RUN_CUDA_INDEX:	RunSimulateCUDAIndex();	break;
 	case RUN_CUDA_FULL:	RunSimulateCUDAFull();	break;
 	case RUN_CUDA_CLUSTER:	RunSimulateCUDACluster();	break;
+#endif
 	case RUN_PLAYBACK:		RunPlayback();			break;
 	};
 
@@ -2125,18 +2140,24 @@ void FluidSystem::RunPlayback ()
 
 std::string FluidSystem::getModeStr ()
 {
-	char buf[100];
+	std::string buf;
+	std::string cuda_disabled;
+
+#ifndef BUILD_CUDA
+	cuda_disabled = " (disabled)";
+#endif
+
 
 	switch ( (int) m_Param[PMODE] ) {
-	case RUN_SEARCH:		sprintf ( buf, "SEARCH ONLY (CPU)" );		break;
-	case RUN_VALIDATE:		sprintf ( buf, "VALIDATE GPU to CPU");		break;
-	case RUN_CPU_SLOW:		sprintf ( buf, "SIMULATE CPU Slow");		break;
-	case RUN_CPU_GRID:		sprintf ( buf, "SIMULATE CPU Grid");		break;
-	case RUN_CUDA_RADIX:	sprintf ( buf, "SIMULATE CUDA Radix Sort");	break;
-	case RUN_CUDA_INDEX:	sprintf ( buf, "SIMULATE CUDA Index Sort" ); break;
-	case RUN_CUDA_FULL:	sprintf ( buf, "SIMULATE CUDA Full Sort" );	break;
-	case RUN_CUDA_CLUSTER:	sprintf ( buf, "SIMULATE CUDA Clustering" );	break;
-	case RUN_PLAYBACK:		sprintf ( buf, "PLAYBACK (%s)", mFileName.c_str() ); break;
+	case RUN_SEARCH: buf = "SEARCH ONLY (CPU)"; break;
+	case RUN_VALIDATE: buf = "VALIDATE GPU to CPU" + cuda_disabled; break;
+	case RUN_CPU_SLOW: buf = "SIMULATE CPU Slow"; break;
+	case RUN_CPU_GRID: buf = "SIMULATE CPU Grid"; break;
+	case RUN_CUDA_RADIX: buf = "SIMULATE CUDA Radix Sort" + cuda_disabled; break;
+	case RUN_CUDA_INDEX: buf = "SIMULATE CUDA Index Sort" + cuda_disabled; break;
+	case RUN_CUDA_FULL: buf = "SIMULATE CUDA Full Sort" + cuda_disabled; break;
+	case RUN_CUDA_CLUSTER: buf = "SIMULATE CUDA Clustering" + cuda_disabled; break;
+	case RUN_PLAYBACK: buf = "PLAYBACK (" + mFileName + ")"; break;
 	};
 	//sprintf ( buf, "RECORDING (%s, %.4f MB)", mFileName.c_str(), mFileSize ); break;
 	return buf;
@@ -2443,7 +2464,7 @@ void FluidSystem::SetupSpacing ()
 	m_Vec[PBOUNDMAX] = m_Vec[PVOLMAX];		m_Vec[PBOUNDMAX] -= 2.0*(m_Param[PGRIDSIZE] / m_Param[PSIMSCALE]);
 }
 
-
+#ifdef BUILD_CUDA
 void FluidSystem::TestPrefixSum ( int num )
 {
 	printf ( "------------------\n");
@@ -2492,8 +2513,9 @@ void FluidSystem::TestPrefixSum ( int num )
 	}
 	printf ( "Validate: %d OK. (Bad: %d)\n", ok, num-ok );
 	printf ( "Press any key to continue..\n");
-	_getch();
+	getchar();
 }
+#endif
 
 
 void FluidSystem::CaptureVideo (int width, int height)

@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <cstring>
 
 #include "mdebug.h"
 
@@ -261,9 +262,10 @@ void CDebug::PrintErr ( std::string errid, std::string subsys, std::string msg, 
 				strcpy_s ( disp, 4000, sysbox.c_str()); 					
 				#include <windows.h>
 				int hr = MessageBoxA ( 0x0, disp, caption, MB_OK);			
-			#else 
-				strncpy ( caption, m_ErrorSubsys.c_str(), 200 );
-				strncpy ( disp, msg.c_str(), 4000 ); 		
+			#else
+				strncpy ( caption, "Error", 200 );
+				strncpy ( disp, msg.c_str(), 4000 );
+				printf("==============\n%s\n--------------\n%s\n==============\n", caption, disp);
 			#endif
 		}
 	}

@@ -8,7 +8,7 @@
 		#include <gl/glext.h>	
 		#include <gl/glut.h>
 	#else								// Linux
-		#include "GLee.h"
+		#include "glee.h"
 		#include <GL/glext.h>	
 		#include <GL/glut.h>	
 	#endif
